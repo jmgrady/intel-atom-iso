@@ -15,7 +15,9 @@ To use the isorespin.sh script and this template, follow these steps:
 
     1. `isorespin.sh -t lubuntu-isorespin.tpl -i lubuntu-16.04.5-desktop-amd64.iso`;
     1. Insert a USB storage stick;
-    1. `dd if=linuxium-atom-lubuntu-16.04.5-desktop-amd64.iso bs=4M status=progress`;
+    1. `dd if=linuxium-atom-lubuntu-16.04.5-desktop-amd64.iso of=/dev/sdx bs=4M status=progress`;
+
+       where /dev/sd*x* is the device name for your USB stick.
 
 You can now boot from the LiveUSB stick to run and install Lubuntu.  The Lubuntu installation will have the following additions:
  1. ssh
@@ -27,7 +29,7 @@ Once *Lubuntu* has been installed, login as the user that you created during ins
  1. install-xForge.sh - installs the web-languageForge software and its prerequisites.  The usage for install-xForge.sh is:
 
    `install-xForge.sh [--repo=<web-languageForge-repo] [--saaz] [--access-point]`
-   
+
    The options are defined as:
 
       `--repo`: specify a repository to be used for the web-languageForge software.  If an alternative repo is not specified, the [SIL repository](https://github.com/sillsdev/web-languageforge.git) is used.
