@@ -1,0 +1,15 @@
+--package ssh
+--package emacs
+--package glances
+--package lubuntu-artwork-14-04
+--package lubuntu-artwork-14-10
+--package lubuntu-artwork-15-04
+--package lubuntu-artwork-15-10
+--file /home/grady/projects/sil/intel-atom-iso/fix-hdmipleaudio.sh
+--file /home/grady/projects/sil/intel-atom-iso/fix-volumekeys.sh
+--file /home/grady/projects/sil/intel-atom-iso/wrapper-fix-hdmipleaudio.sh
+--file /home/grady/projects/sil/intel-atom-iso/brcmfmac43455-sdio.txt
+--file /home/grady/projects/sil/intel-atom-iso/wrapper-fix-brcmfmac43455.sh
+--file /home/grady/projects/sil/intel-atom-iso/install-xForge.sh
+--command wrapper-fix-hdmipleaudio.sh
+--command wrapper-fix-brcmfmac43455.sh
