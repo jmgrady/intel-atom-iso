@@ -15,7 +15,7 @@ To use the isorespin.sh script and this template, follow these steps:
 
     1. `isorespin.sh -t lubuntu-isorespin.tpl -i lubuntu-16.04.5-desktop-amd64.iso`;
     1. Insert a USB storage stick;
-    1. `dd if=linuxium-atom-lubuntu-16.04.5-desktop-amd64.iso of=/dev/sdx bs=4M status=progress`;
+    1. `sudo dd if=linuxium-atom-lubuntu-16.04.5-desktop-amd64.iso of=/dev/sdx bs=4M status=progress`;
 
        where /dev/sd*x* is the device name for your USB stick.
 
