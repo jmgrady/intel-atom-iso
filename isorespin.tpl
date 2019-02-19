@@ -1,6 +1,5 @@
 --package ssh
 --package emacs
---package glances
 --package lubuntu-artwork-14-04
 --package lubuntu-artwork-14-10
 --package lubuntu-artwork-15-04
