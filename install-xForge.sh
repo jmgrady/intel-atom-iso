@@ -7,6 +7,7 @@
 
 LF_REPO="https://github.com/sillsdev/web-languageforge.git"
 INSTALL_AP=0
+DEPLOY_LF=0
 
 printUsage()
 {
@@ -18,6 +19,8 @@ Options:
       Use the specified repository instead of the default SIL repo
    --saaz
       Shortcut for --repo=grady@10.0.0.32:/home/grady/projects/sil/xForge/web-languageforge
+   --deploy
+      Run ansible playbooks to deploy languageforge on the localhost
 
 The script sets up a target to be ready to run the SIL ansible playbooks.
 It will:
@@ -48,6 +51,7 @@ do
               fi;;
     --saaz)   LF_REPO="grady@10.0.0.32:/home/grady/projects/sil/xForge/web-languageforge";;
     --access-point) INSTALL_AP=1;;
+    --deploy) DEPLOY_LF=1;;
 	  -?)			  printUsage;;
 	  --help)		printUsage;;
 	  *)        echo -e "Unknown Option: $1";;
@@ -85,9 +89,14 @@ cd ~/src
 cd ~/src/web-languageforge/deploy/
 git checkout master
 
-ansible-playbook -i hosts playbook_create_config.yml --limit localhost -K
-ansible-playbook playbook_xenial.yml --limit localhost -K
+if [ "$DEPLOY_LF" == "1" ] ; then
+  ansible-playbook -i hosts playbook_create_config.yml --limit localhost -K
+  ansible-playbook playbook_xenial.yml --limit localhost -K
+fi
 
-if [ $INSTALL_AP eq "1" ] ; then
+if [ "$INSTALL_AP" == "1" ] ; then
   ansible-playbook playbook_access_point.yml --limit localhost -K
 fi
+
+cd ~/src/web-languageforge
+./refreshDeps.sh
