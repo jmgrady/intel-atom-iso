@@ -1,0 +1,164 @@
+---
+
+##########################################################
+# This script installs Spotify and the codec libraries
+# that are needed to play DVDs.  These packages are not
+# required for Languge Forge but may be useful if the device
+# is to be used for streaming media or playing DVDs as well.
+##########################################################
+
+- name: Install apps to allow streaming and playing of music and video
+  hosts: all
+  become: yes
+
+  vars:
+    nas_ip: "10.0.0.15"
+    nas_name: "NAS326"
+    nas_user: "mac"
+    nas_domain: "WORKGROUP"
+
+  vars_prompt:
+    - name: "nas_password"
+      prompt: "Enter password for user {{ nas_user }} on {{ nas_name }}"
+      private: yes
+
+    - name: "target_user"
+      prompt: "Enter the target user"
+      default: grady
+      private: no
+
+  pre_tasks:
+    - name: add Spotify apt key
+      apt_key:
+        keyserver: hkp://keyserver.ubuntu.com:80
+        id: 931FF8E79F0876134EDDBDCCA87FF9DF48BF1C90
+
+    - name: add Spotify repository
+      apt_repository:
+        repo: "deb http://repository.spotify.com stable non-free | sudo tee /etc/apt/sources.list.d/spotify.list"
+        state: present
+        update_cache: yes
+
+    - name: add Clementine repository
+      apt_repository:
+        repo: "ppa:me-davidsansome/clementine"
+        state: present
+        update_cache: yes
+
+  tasks:
+    - name: install libdvd package
+      apt:
+        name: libdvd-pkg
+        state: present
+      notify:
+      - Configure_libdvd
+
+    - name: install Spotify, Clementine, and VLC
+      apt:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+        - spotify-client
+        - clementine
+        - vlc
+        - cifs-utils
+
+####
+#
+# Create a credentials file be used to connect to the Windows share on
+# the Network Attached Storage.
+#
+####
+    - name: Create credentials file for mounting NAS file share
+      template:
+        src: templates/nascredentials.j2
+        dest: /home/{{ target_user }}/.nascredentials
+        owner: "{{ target_user }}"
+        group: "{{ target_user }}"
+        mode: 0600
+      when: target_user != ""
+
+    - name: Check for {{ nas_name }} in /etc/hosts
+      shell: cat /etc/hosts
+      register: etc_hosts_contents
+
+    - name: Create /etc/hosts entry for {{ nas_name }}
+      template:
+        src: templates/nashost.j2
+        dest: /home/{{ target_user }}/etc_hosts
+      when: nas_name not in etc_hosts_contents.stdout
+
+    - name: Add {{ nas_name }} to /etc/hosts
+      shell: cat /home/{{ target_user }}/etc_hosts >> /etc/hosts
+      when: nas_name not in etc_hosts_contents.stdout
+
+    - name: Clean up temp file
+      file:
+        path: /home/{{ target_user }}/etc_hosts
+        state: absent
+
+####
+#
+# Update /etc/fstab to add entries for the Music and Photo shares on
+# the Network Attached Storage.
+#
+####
+    - name: Create mount point for //{{ nas_name }}/Music
+      file:
+        path: /home/{{ target_user }}/Music
+        state: directory
+        owner: "{{ target_user }}"
+        group: "{{ target_user }}"
+
+    - name: Create mount point for //{{ nas_name }}/Photo
+      file:
+        path: /home/{{ target_user }}/Photo
+        state: directory
+        owner: "{{ target_user }}"
+        group: "{{ target_user }}"
+
+    - name: Check for {{ nas_name }} in /etc/fstab
+      shell: cat /etc/fstab
+      register: etc_fstab_contents
+
+    - name: Create /etc/fstab entry for //{{ nas_name }}/Music and //{{ nas_name }}/photos
+      template:
+        src: templates/nasfstab.j2
+        dest: /home/{{ target_user }}/etc_fstab
+      when: nas_name not in etc_fstab_contents.stdout
+
+    - name: Add {{ nas_name }} entries to /etc/fstab
+      shell: cat /home/{{ target_user }}/etc_fstab >> /etc/fstab
+      when: nas_name not in etc_fstab_contents.stdout
+
+    - name: Clean up temp file
+      file:
+        path: /home/{{ target_user }}/etc_fstab
+        state: absent
+
+####
+#
+# Add script to .profile to automatically mount the Music & Photo shares if
+# on the same network as the NAS.
+#
+####
+    - name: Get contents of .profile for user {{ target_user }}
+      shell: cat /home/{{ target_user }}/.profile
+      register: dot_profile_contents
+
+    - name: Create script to mount Music & Photo volumes
+      template:
+        src: templates/mountNasVolumes.j2
+        dest: /home/{{ target_user }}/.mountNas.sh
+        owner: "{{ target_user }}"
+        group: "{{ target_user }}"
+        mode: 0755
+
+    - name: Update .profile
+      shell: echo "\n\n./.mountNas.sh" >> /home/{{ target_user }}/.profile
+      when:  dot_profile_contents.stdout.find(".mountNas.sh") == -1
+
+  handlers:
+    - name: Configure_libdvd
+      shell: dpkg-reconfigure -f noninteractive libdvd-pkg
