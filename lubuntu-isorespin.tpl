@@ -11,6 +11,5 @@
 --file wrapper-fix-hdmipleaudio.sh
 --file brcmfmac43455-sdio.txt
 --file wrapper-fix-brcmfmac43455.sh
---file install-xForge.sh
 --command wrapper-fix-hdmipleaudio.sh
 --command wrapper-fix-brcmfmac43455.sh
