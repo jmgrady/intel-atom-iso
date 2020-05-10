@@ -1,3 +1,5 @@
 **/*.iso
 isorespin.log
 isorespin.tpl
+
+**/*.retry

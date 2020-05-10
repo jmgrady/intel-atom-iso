@@ -1,0 +1,24 @@
+---
+
+##########################################################
+# This script sets up an Intel Atom Z83-F
+##########################################################
+
+- name: Install apps to allow streaming and playing of music and video
+  hosts: all
+  become: yes
+
+  vars_prompt:
+    - name: "target_user"
+      prompt: "Enter the target user"
+      default: grady
+      private: no
+
+  tasks:
+    - name: Install WiFi Driver
+      import_role:
+        name: atom_wifi
+
+    - name: Fix HDMI Audio
+      import_role:
+        name: hdmi_audio

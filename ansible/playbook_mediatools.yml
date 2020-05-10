@@ -12,7 +12,7 @@
   become: yes
 
   vars:
-    nas_ip: "10.0.0.15"
+    nas_ip: "10.0.0.3"
     nas_name: "NAS326"
     nas_user: "mac"
     nas_domain: "WORKGROUP"
@@ -28,21 +28,23 @@
       private: no
 
   pre_tasks:
-    - name: add Spotify apt key
+    - name: add apt key for Lollypop
       apt_key:
-        keyserver: hkp://keyserver.ubuntu.com:80
-        id: 931FF8E79F0876134EDDBDCCA87FF9DF48BF1C90
+        keyserver: keyserver.ubuntu.com
+        id: 8FAD14A04A8E87F23FB5653BDBA501177AA84500
 
-    - name: add Spotify repository
+    - name: add Lollypop repository
       apt_repository:
-        repo: "deb http://repository.spotify.com stable non-free | sudo tee /etc/apt/sources.list.d/spotify.list"
+        repo: deb http://ppa.launchpad.net/gnumdk/lollypop/ubuntu bionic main
         state: present
-        update_cache: yes
+        filename: lollypop
+        update_cache: no
 
-    - name: add Clementine repository
+    - name: add Lollypop source repository
       apt_repository:
-        repo: "ppa:me-davidsansome/clementine"
+        repo: deb-src http://ppa.launchpad.net/gnumdk/lollypop/ubuntu bionic main
         state: present
+        filename: lollypop
         update_cache: yes
 
   tasks:
@@ -53,14 +55,14 @@
       notify:
       - Configure_libdvd
 
-    - name: install Spotify, Clementine, and VLC
+    - name: install Spotify, Lollypop, and VLC
       apt:
         name: "{{ packages }}"
         state: present
       vars:
         packages:
         - spotify-client
-        - clementine
+        - lollypop
         - vlc
         - cifs-utils
 
